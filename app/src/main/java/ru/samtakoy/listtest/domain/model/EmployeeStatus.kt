@@ -15,10 +15,7 @@ enum class EmployeeStatus(val id: Int, val color: Int) {
         }
 
         fun getById(id: Int): EmployeeStatus?{
-
-            if(_table == null){
-                initTable();
-            }
+            initTable();
             return _table!![id]
         }
 
