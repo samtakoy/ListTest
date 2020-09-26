@@ -2,11 +2,14 @@ package ru.samtakoy.listtest.presentation.list
 
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -25,12 +28,15 @@ import javax.inject.Provider
 
 class ListFragment : MvpAppCompatFragment(), ListView{
 
+    private val TAG = "ListFragment"
+
     @Inject
     lateinit var presenterProvider: Provider<ListPresenter>
 
     private val presenter by moxyPresenter { presenterProvider.get() }
 
     private lateinit var recyclerViewAdapter: EmployeeListAdapter
+    private lateinit var recyclerLayoutManager: LinearLayoutManager
 
     private val recyclerViewPreDrawListener: ViewTreeObserver.OnPreDrawListener = ViewTreeObserver.OnPreDrawListener {
         tryScrollOneItemDown()
@@ -72,7 +78,12 @@ class ListFragment : MvpAppCompatFragment(), ListView{
     }
 
     private fun setupRecyclerView(view: View, employeeListAdapter: EmployeeListAdapter) {
+
+        recyclerLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+
         view.recyclerView.run{
+
+            layoutManager = recyclerLayoutManager
             adapter = employeeListAdapter
 
             addOnScrollListener(createInfiniteScrollListener(layoutManager as LinearLayoutManager))
@@ -93,7 +104,7 @@ class ListFragment : MvpAppCompatFragment(), ListView{
 
     private fun createAdapter(): EmployeeListAdapter {
         return EmployeeListAdapter{ view, employee ->
-            // goto Employee DetailsScreen
+            //tryScrollOneItemDown()
         }
     }
 
@@ -129,18 +140,23 @@ class ListFragment : MvpAppCompatFragment(), ListView{
     private fun tryScrollOneItemDown() {
 
         recyclerView.getViewTreeObserver().removeOnPreDrawListener (recyclerViewPreDrawListener)
-
-        val lm = (requireView().recyclerView.layoutManager as LinearLayoutManager)
-
-        val visibleItemCount = lm.childCount
-        val totalItemCount = recyclerViewAdapter.itemCount
-        val firstVisibleItemPosition = lm.findFirstVisibleItemPosition()
-
-        val scrollToItem = visibleItemCount + firstVisibleItemPosition + 1
-        if(scrollToItem <= totalItemCount){
+        if(recyclerLayoutManager.findLastVisibleItemPosition() < recyclerViewAdapter.itemCount){
             recyclerView.post {
-                recyclerView.smoothScrollToPosition(scrollToItem - 1)
+                recyclerView.layoutManager!!.startSmoothScroll(
+                    createSmoothScrollerToPosition(recyclerLayoutManager.findLastVisibleItemPosition()+1)
+                )
             }
         }
     }
+
+    private fun createSmoothScrollerToPosition(targetPos: Int): LinearSmoothScroller{
+        val smoothScroller = object: LinearSmoothScroller(context){
+            override fun calculateSpeedPerPixel(displayMetrics: DisplayMetrics?): Float {
+                return super.calculateSpeedPerPixel(displayMetrics)*10
+            }
+        }
+        smoothScroller.setTargetPosition(targetPos)
+        return smoothScroller
+    }
+
 }

@@ -16,7 +16,11 @@ class EmployeeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
 
 
 
-    fun bind(item: Employee, itemClickListener: ((view: View, empl: Employee) -> Unit)?) {
+    fun bind(item: Employee, itemClickListener: ((view: View, empl: Employee) -> Unit)) {
+
+        itemView.setOnClickListener(View.OnClickListener {
+            itemClickListener.invoke(it, item)
+        })
 
         itemView.firstName.text = item.getVisibleFirstName()
         itemView.lastName.text = item.getVisibleLastName()
@@ -30,7 +34,7 @@ class EmployeeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
 }
 
 class EmployeeListAdapter(
-    private val itemClickListener:((view: View, empl: Employee) -> Unit)? = null
+    private val itemClickListener:((view: View, empl: Employee) -> Unit)
 ) : ListAdapter<Employee, EmployeeViewHolder>(ITEM_COMPARATOR) {
 
 
