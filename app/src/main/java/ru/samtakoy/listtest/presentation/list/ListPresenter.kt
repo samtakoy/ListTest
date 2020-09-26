@@ -1,6 +1,7 @@
 package ru.samtakoy.listtest.presentation.list
 
 import android.util.Log
+import com.bumptech.glide.Glide
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.extensions.CloseableCoroutineScope
@@ -27,8 +28,9 @@ class ListPresenter @Inject constructor(
 
         Log.e(TAG, "debug")
 
-        viewState.showMessage(R.string.hello)
+        //viewState.showMessage(R.string.hello)
 
+        // for test
 
         cache.init()
         observeUpdates()
@@ -42,12 +44,13 @@ class ListPresenter @Inject constructor(
 
     private fun observeUpdates() {
         presenterScope.launch {
+            cache.observeCacheStatus()
+                .collect{updateLoadingView(it) }
+        }
+        presenterScope.launch {
             cache.getEmployees()
                 .flowOn(Dispatchers.IO)
                 .collect {onCachedDataUpdated(it)}
-
-            cache.observeCacheStatus()
-                .collect{updateLoadingView(it) }
         }
     }
 
@@ -59,12 +62,15 @@ class ListPresenter @Inject constructor(
         }
     }
 
-    fun onCachedDataUpdated(employees: List<Employee>){
+    private fun onCachedDataUpdated(employees: List<Employee>){
         Log.d("ListPresenter", "applyDataToView:"+Thread.currentThread().name)
         viewState.setData(employees)
     }
 
-    fun getMoreEmployees() {
+    fun onUiGetMoreEmployees() {
         cache.retrieveMoreEmployees()
     }
+
+
+
 }

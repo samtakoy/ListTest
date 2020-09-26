@@ -25,4 +25,8 @@ class EmployeeCacheRepositoryImpl @Inject constructor(
             EmployeeEntity.fromDomainEntity(it)
         })
     }
+
+    override fun clearEmployees() {
+        db.employeeData().clearEmployees()
+    }
 }

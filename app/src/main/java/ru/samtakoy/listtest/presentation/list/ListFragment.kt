@@ -1,22 +1,27 @@
 package ru.samtakoy.listtest.presentation.list
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import ru.samtakoy.listtest.R
-import ru.samtakoy.listtest.domain.model.Employee
-import ru.samtakoy.listtest.presentation.list.inner.EmployeeListAdapter
-import ru.samtakoy.listtest.presentation.list.inner.InfiniteScrollListener
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.fragment_employee_list.*
 import kotlinx.android.synthetic.main.fragment_employee_list.view.*
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
+import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
+import ru.samtakoy.listtest.domain.model.Employee
+import ru.samtakoy.listtest.presentation.list.inner.EmployeeListAdapter
+import ru.samtakoy.listtest.presentation.list.inner.InfiniteScrollListener
 import javax.inject.Inject
 import javax.inject.Provider
+
 
 class ListFragment : MvpAppCompatFragment(), ListView{
 
@@ -27,12 +32,30 @@ class ListFragment : MvpAppCompatFragment(), ListView{
 
     private lateinit var recyclerViewAdapter: EmployeeListAdapter
 
+    private val recyclerViewPreDrawListener: ViewTreeObserver.OnPreDrawListener = ViewTreeObserver.OnPreDrawListener {
+        tryScrollOneItemDown()
+        true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         Di.appComponent.inject(this)
         super.onCreate(savedInstanceState)
 
+        if(savedInstanceState == null){
+            clearGlideCache()
+        }
+    }
+
+    private fun clearGlideCache() {
+        object:AsyncTask<Void, Void, Void> (){
+            override fun doInBackground(vararg params: Void?): Void? {
+                Glide
+                    .get(requireContext().applicationContext)
+                    .clearDiskCache();
+                return null
+            }
+        }
     }
 
     override fun onCreateView(
@@ -62,7 +85,7 @@ class ListFragment : MvpAppCompatFragment(), ListView{
 
         return object: InfiniteScrollListener(linearLayoutManager) {
             override fun loadMoreItems() {
-                presenter.getMoreEmployees()
+                presenter.onUiGetMoreEmployees()
             }
             override fun isLoading(): Boolean = false
         }
@@ -79,15 +102,45 @@ class ListFragment : MvpAppCompatFragment(), ListView{
     }
 
     override fun setData(data: List<Employee>) {
+
+        val isScrollNeeded = recyclerViewAdapter.itemCount > 0
+                && recyclerViewAdapter.itemCount < data.size
+
         recyclerViewAdapter.submitList(data)
 
+        if(isScrollNeeded){
+            recyclerView.getViewTreeObserver().addOnPreDrawListener (recyclerViewPreDrawListener)
+        }
     }
 
     override fun showDataLoading() {
-        //TODO("Not yet implemented")
+        //loadingProgress.show()
+        loadingProgress.visibility = View.VISIBLE
     }
 
     override fun hideDataLoading() {
-        //TODO("Not yet implemented")
+
+        if(loadingProgress.visibility == View.VISIBLE) {
+            //loadingProgress.hide()
+            loadingProgress.visibility = View.GONE
+        }
+    }
+
+    private fun tryScrollOneItemDown() {
+
+        recyclerView.getViewTreeObserver().removeOnPreDrawListener (recyclerViewPreDrawListener)
+
+        val lm = (requireView().recyclerView.layoutManager as LinearLayoutManager)
+
+        val visibleItemCount = lm.childCount
+        val totalItemCount = recyclerViewAdapter.itemCount
+        val firstVisibleItemPosition = lm.findFirstVisibleItemPosition()
+
+        val scrollToItem = visibleItemCount + firstVisibleItemPosition + 1
+        if(scrollToItem <= totalItemCount){
+            recyclerView.post {
+                recyclerView.smoothScrollToPosition(scrollToItem - 1)
+            }
+        }
     }
 }

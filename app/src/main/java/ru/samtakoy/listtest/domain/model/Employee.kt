@@ -11,4 +11,8 @@ data class Employee(
     val description: String,
     val status: EmployeeStatus
 ) {
+
+
+    fun getVisibleFirstName() = "${firstName}_$id"
+    fun getVisibleLastName() = "${lastName}_$id"
 }

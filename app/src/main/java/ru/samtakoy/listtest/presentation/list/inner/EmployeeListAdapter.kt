@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.employee_list_item.view.*
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.domain.model.Employee
@@ -17,8 +18,11 @@ class EmployeeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
 
     fun bind(item: Employee, itemClickListener: ((view: View, empl: Employee) -> Unit)?) {
 
-        itemView.firstName.text = item.firstName
-        itemView.lastName.text = item.lastName
+        itemView.firstName.text = item.getVisibleFirstName()
+        itemView.lastName.text = item.getVisibleLastName()
+        Glide.with(itemView.context)
+            .load(item.avatar)
+            .into(itemView.icon)
     }
 
 

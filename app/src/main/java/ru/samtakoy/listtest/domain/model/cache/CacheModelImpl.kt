@@ -7,11 +7,7 @@ import ru.samtakoy.listtest.extensions.CloseableCoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.samtakoy.listtest.domain.model.Employee
@@ -30,21 +26,27 @@ class CacheModelImpl @Inject constructor(
     private val CACHE_PAGE_SIZE = 10
     private var cachedPageCount = -1
 
-    private var cacheStatus: CacheStatus = CacheStatus.NOT_INITIALIZED
-    private var cacheStatusChannel = ConflatedBroadcastChannel<CacheStatus>()
+    //private var cacheStatus: CacheStatus = CacheStatus.NOT_INITIALIZED
+    //private var cacheStatusChannel = ConflatedBroadcastChannel<CacheStatus>()
+
+    private var cacheStatus = MutableStateFlow<CacheStatus>(CacheStatus.NOT_INITIALIZED)
 
     private val modelScope = CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun init() {
-        if(cacheStatus == CacheStatus.NOT_INITIALIZED){
+        if(cacheStatus.value == CacheStatus.NOT_INITIALIZED){
+
             modelScope.launch {
-                cacheStatusChannel.send(cacheStatus)
+                withContext(Dispatchers.IO) {
+                    cacheRepository.clearEmployees()
+                }
+                //cacheStatusChannel.send(cacheStatus)
             }
             retrieveInitialData()
         }
     }
 
-    override fun observeCacheStatus(): Flow<CacheStatus> = cacheStatusChannel.asFlow()
+    override fun observeCacheStatus(): Flow<CacheStatus> = cacheStatus
 
     private fun retrieveInitialData() {
         modelScope.launch {
@@ -55,8 +57,10 @@ class CacheModelImpl @Inject constructor(
     }
 
     private suspend fun changeCacheStatus(newStatus: CacheStatus){
-        cacheStatus = newStatus
-        cacheStatusChannel.send(newStatus)
+
+        Log.d(TAG, "* changeCacheStatus:${newStatus.name}")
+        cacheStatus.value = newStatus
+        //cacheStatusChannel.send(newStatus)
     }
 
     private suspend fun onInitialData(cacheSize: Int){
@@ -76,24 +80,29 @@ class CacheModelImpl @Inject constructor(
 
     override fun retrieveMoreEmployees() {
 
-        if(cacheStatus != CacheStatus.UNCOMPLETED){
-            return
-        }
-
         modelScope.launch {
+
+            if(cacheStatus.value != CacheStatus.UNCOMPLETED){
+                return@launch
+            }
 
             changeCacheStatus(CacheStatus.DATA_RETRIEVING)
 
             var resultPack: EmployeePack? = null
 
             withContext(Dispatchers.IO) {
+                Log.d(TAG, "retrieve page num: ${cachedPageCount + 1}")
                 resultPack = remoteRepository.retrieveMoreEmployees(cachedPageCount + 1)
             }
 
             if(resultPack != null) {
                 onRetrieveEmployeesComplete(resultPack!!)
                 changeCacheStatus(if(resultPack!!.isEmpty()) CacheStatus.SYNCHRONIZED else CacheStatus.UNCOMPLETED)
+
+                Log.d(TAG, "page loaded, cacheStatus: ${cacheStatus.value.name}")
             } else {
+
+                Log.d(TAG, "loading error")
                 onRetrieveEmployeesError()
                 changeCacheStatus(CacheStatus.UNCOMPLETED)
             }
