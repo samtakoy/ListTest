@@ -16,9 +16,9 @@ interface EmployeeDao {
     fun getEmployeeCount(): Flow<Int>
 
     @Insert
-    fun addEmployees(employees: List<EmployeeEntity>)
+    suspend fun addEmployees(employees: List<EmployeeEntity>)
 
     @Query("DELETE FROM employee")
-    fun clearEmployees()
+    suspend fun clearEmployees()
 
 }

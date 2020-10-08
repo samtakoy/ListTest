@@ -1,10 +1,12 @@
 package ru.samtakoy.listtest.domain.model.cache
 
-enum class CacheStatus {
+enum class CacheStatus(
+    val isNetworkBusy: Boolean
+) {
 
-    NOT_INITIALIZED,
-    DATA_RETRIEVING,
-    UNCOMPLETED,
-    SYNCHRONIZED
+    NOT_INITIALIZED(false),
+    DATA_RETRIEVING(true),
+    UNCOMPLETED(false),
+    SYNCHRONIZED(false)
 
 }

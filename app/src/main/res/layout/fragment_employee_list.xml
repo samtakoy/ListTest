@@ -17,11 +17,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/loadingProgress"
         >
-
     </androidx.recyclerview.widget.RecyclerView>
 
 
-    <!--androidx.core.widget.ContentLoadingProgressBar-->
     <ProgressBar
         android:id="@+id/loadingProgress"
         android:layout_width="match_parent"

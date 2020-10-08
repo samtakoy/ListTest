@@ -1,18 +1,14 @@
 package ru.samtakoy.listtest.presentation.list
 
 import android.util.Log
-import com.bumptech.glide.Glide
-import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.domain.model.Employee
-import ru.samtakoy.listtest.extensions.CloseableCoroutineScope
+import ru.samtakoy.listtest.utils.extensions.CloseableCoroutineScope
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import ru.samtakoy.listtest.domain.model.cache.CacheModel
-import ru.samtakoy.listtest.domain.model.cache.CacheStatus
 import javax.inject.Inject
+import kotlinx.coroutines.flow.*
 
 
 @InjectViewState
@@ -25,14 +21,8 @@ class ListPresenter @Inject constructor(
     private val presenterScope = CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     init {
-
         Log.e(TAG, "debug")
-
-        //viewState.showMessage(R.string.hello)
-
-        // for test
-
-        cache.init()
+        cache.checkForInitialization()
         observeUpdates()
     }
 
@@ -43,19 +33,28 @@ class ListPresenter @Inject constructor(
     }
 
     private fun observeUpdates() {
+
         presenterScope.launch {
-            cache.observeCacheStatus()
-                .collect{updateLoadingView(it) }
+            cache.observeNetworkBusyStatus()
+                .collect{
+                    updateLoadingView(it)
+                }
         }
         presenterScope.launch {
-            cache.getEmployees()
-                .flowOn(Dispatchers.IO)
+            cache.observeEmployees()
                 .collect {onCachedDataUpdated(it)}
+        }
+        presenterScope.launch {
+            cache.observeErrors()
+                //.consumeEach {
+                .collect{
+                    viewState.showMessage(it.errorTextId)
+                }
         }
     }
 
-    private fun updateLoadingView(cacheStatus: CacheStatus) {
-        if(cacheStatus == CacheStatus.DATA_RETRIEVING){
+    private fun updateLoadingView(isLoading: Boolean) {
+        if(isLoading){
             viewState.showDataLoading()
         } else{
             viewState.hideDataLoading()

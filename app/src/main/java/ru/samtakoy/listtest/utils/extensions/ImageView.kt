@@ -1,4 +1,4 @@
-package ru.samtakoy.listtest.extensions
+package ru.samtakoy.listtest.utils.extensions
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable

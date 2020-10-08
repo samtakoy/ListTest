@@ -22,11 +22,12 @@ import ru.samtakoy.listtest.app.Di
 import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.presentation.list.inner.EmployeeListAdapter
 import ru.samtakoy.listtest.presentation.list.inner.InfiniteScrollListener
+import ru.samtakoy.listtest.presentation.list.inner.SwipeItemHelper
 import javax.inject.Inject
 import javax.inject.Provider
 
 
-class ListFragment : MvpAppCompatFragment(), ListView{
+class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeListener{
 
     private val TAG = "ListFragment"
 
@@ -37,6 +38,7 @@ class ListFragment : MvpAppCompatFragment(), ListView{
 
     private lateinit var recyclerViewAdapter: EmployeeListAdapter
     private lateinit var recyclerLayoutManager: LinearLayoutManager
+    private lateinit var swipeItemHelper: SwipeItemHelper
 
     private val recyclerViewPreDrawListener: ViewTreeObserver.OnPreDrawListener = ViewTreeObserver.OnPreDrawListener {
         tryScrollOneItemDown()
@@ -77,6 +79,19 @@ class ListFragment : MvpAppCompatFragment(), ListView{
         return view
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        swipeItemHelper.attachToRecyclerView(recyclerView)
+    }
+
+    override fun onStop() {
+
+        swipeItemHelper.detachToRecyclerView()
+
+        super.onStop()
+    }
+
     private fun setupRecyclerView(view: View, employeeListAdapter: EmployeeListAdapter) {
 
         recyclerLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -88,8 +103,14 @@ class ListFragment : MvpAppCompatFragment(), ListView{
 
             addOnScrollListener(createInfiniteScrollListener(layoutManager as LinearLayoutManager))
 
+            swipeItemHelper = SwipeItemHelper(requireContext(), this@ListFragment)
+
             // TODO transition
         }
+    }
+
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder) {
+        // do nothing yet
     }
 
     private fun createInfiniteScrollListener(linearLayoutManager: LinearLayoutManager): RecyclerView.OnScrollListener {

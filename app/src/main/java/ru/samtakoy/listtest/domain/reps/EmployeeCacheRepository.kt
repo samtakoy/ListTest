@@ -8,6 +8,6 @@ interface EmployeeCacheRepository {
 
     fun getEmployees(): Flow<List<Employee>>
     fun getEmployeesCount(): Flow<Int>
-    fun addData(employees: List<Employee>)
-    fun clearEmployees()
+    suspend fun addData(employees: List<Employee>)
+    suspend fun clearEmployees()
 }

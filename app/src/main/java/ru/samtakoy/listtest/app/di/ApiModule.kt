@@ -10,7 +10,7 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class ApiModule(private val context: Context) {
+class ApiModule() {
 
     @Provides
     @Singleton
@@ -20,7 +20,7 @@ class ApiModule(private val context: Context) {
 
     @Provides
     @Singleton
-    fun provideDatabase(): CacheDatabase =
+    fun provideDatabase(context: Context): CacheDatabase =
         Room.databaseBuilder(context, CacheDatabase::class.java, "employees_cache").build()
 
 }

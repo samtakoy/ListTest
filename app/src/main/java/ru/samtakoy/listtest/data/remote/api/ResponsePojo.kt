@@ -9,14 +9,24 @@ class ResponsePojo {
 
     @SerializedName("version")
     @Expose
-    var version: Int? = null
+    val version: Int? = null
+
+    @SerializedName("page")
+    @Expose
+    val page: Int? = null
+
+    @SerializedName("total_pages")
+    @Expose
+    val total_pages: Int? = null
 
     @SerializedName("employees")
     @Expose
-    var employees: List<EmployeePojo>? = null
+    val employees: List<EmployeePojo>? = null
 
     fun toDomainModel() = EmployeePack(
         version!!,
+        page!!,
+        total_pages!!,
         employees!!.map { it.toDomainModel() }
     )
 }
