@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="@string/settings_subtitle" >
+
+        <Preference
+            android:key="pref_key_invalidate_db_cache"
+            app:title="@string/settings_invalidate_db_cache_title"
+            android:summary="@string/settings_invalidate_db_cache_summary"
+            >
+        </Preference>
+
+        <Preference
+            android:key="pref_key_clear_db_cache"
+            app:title="@string/settings_clear_db_cache_title"
+            android:summary="@string/settings_clear_db_cache_summary"
+            >
+        </Preference>
+
+        <Preference
+            android:key="pref_key_clear_glide_cache"
+            app:title="@string/settings_clear_glide_cache_title"
+            android:summary="@string/settings_clear_glide_cache_summary"
+            >
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

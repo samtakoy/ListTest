@@ -20,4 +20,7 @@ interface ListView : MvpView{
     fun showDataLoading()
     @StateStrategyType(AddToEndSingleTagStrategy::class, tag = "LOADING")
     fun hideDataLoading()
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun navigateToSettings()
 }

@@ -70,6 +70,13 @@ class ListPresenter @Inject constructor(
         cache.retrieveMoreEmployees()
     }
 
+    fun onUiSettingsClick() {
+        viewState.navigateToSettings()
+    }
+
+    fun onUiCheckCacheStatus() {
+        cache.checkForInitialization()
+    }
 
 
 }

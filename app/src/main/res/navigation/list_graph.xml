@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/listGraph"
+    app:startDestination="@id/listFragment"
+    >
+
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="ru.samtakoy.listtest.presentation.list.ListFragment"
+        android:label="@string/menu_userList"
+        >
+        <action
+            android:id="@+id/to_details"
+            app:destination="@id/detailsFragment"
+            app:enterAnim="@anim/fragment_fade_enter"
+            app:exitAnim="@anim/fragment_fade_exit"
+            app:popEnterAnim="@anim/fragment_fade_enter"
+            app:popExitAnim="@anim/fragment_fade_exit"
+            />
+        <action
+            android:id="@+id/to_settings"
+            app:destination="@id/settingsFragment"
+            app:enterAnim="@anim/fragment_fade_enter"
+            app:exitAnim="@anim/fragment_fade_exit"
+            app:popEnterAnim="@anim/fragment_fade_enter"
+            app:popExitAnim="@anim/fragment_fade_exit"
+            />
+
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="ru.samtakoy.listtest.presentation.details.DetailsFragment"
+        android:label=""
+        >
+        <argument
+            android:name="userId"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="ru.samtakoy.listtest.presentation.settings.SettingsFragment"
+        android:label="@string/settings_screen_title" />
+
+</navigation>

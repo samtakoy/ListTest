@@ -92,4 +92,10 @@ dependencies {
 
     // dynamic animation
     implementation "androidx.dynamicanimation:dynamicanimation-ktx:1.0.0-alpha03"
+
+    // preferences
+    implementation "androidx.preference:preference:1.0.0"
+
+    // material
+    implementation "com.google.android.material:material:$material_version"
 }

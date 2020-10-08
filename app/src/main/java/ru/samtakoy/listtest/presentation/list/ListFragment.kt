@@ -4,10 +4,8 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -53,6 +51,8 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
         if(savedInstanceState == null){
             clearGlideCache()
         }
+
+        setHasOptionsMenu(true)
     }
 
     private fun clearGlideCache() {
@@ -83,6 +83,8 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
         super.onStart()
 
         swipeItemHelper.attachToRecyclerView(recyclerView)
+        // for test
+        presenter.onUiCheckCacheStatus()
     }
 
     override fun onStop() {
@@ -180,4 +182,23 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
         return smoothScroller
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+
+        inflater.inflate(R.menu.menu_list, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+            R.id.menu_item_settings -> presenter.onUiSettingsClick()
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun navigateToSettings() {
+        findNavController().navigate(
+            ListFragmentDirections.toSettings()
+        )
+    }
 }

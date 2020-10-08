@@ -7,5 +7,38 @@
     <string name="cache_err_cant_clear">Ошибка при очистке кеша</string>
     <string name="cache_err_cant_reuest">Ошибка при получении данных. Попробуйте позже.</string>
     <string name="cache_err_cant_handle_request">Ошибка при получении данных (2). Попробуйте позже.</string>
+    <string name="about_text">Код данного приложения написан с использованием:
+\n
+\nKotlin
+\nCoroutines, Flows, Channels, Actors
+\nRoom, Navigation Component,
+\nRetrofit 2,
+\nDagger 2,
+\nDynamicAnimation
+\n
+\nTodo:
+\n
+\nMvvm: ViewModel+Livedata
+\nBehaviors
+\nShared Anims
+\nCustom Views
+\nТесты
+
+    </string>
+
+    <string name="settings_screen_title">Настройки</string>
+    <string name="settings_subtitle">Управление кешами</string>
+    <string name="settings_invalidate_db_cache_title">Инвалидировать кеш базы</string>
+    <string name="settings_invalidate_db_cache_summary">Данные в базе кеша помечаются как устаревшие и при следующем запросе будут обновлены</string>
+    <string name="settings_clear_db_cache_title">Очистить кеш базы</string>
+    <string name="settings_clear_db_cache_summary">Инвалидирует и мгновенно очищает кеш базы</string>
+    <string name="settings_clear_glide_cache_title">Очистить кеш Glide</string>
+    <string name="settings_clear_glide_cache_summary">Очищает кеш Glide на диске и в памяти</string>
+    <string name="msg_settings_apply_success">Успешно</string>
+    <string name="msg_settings_apply_error">Что-то пошло не так</string>
+
+    <string name="menu_item_settings">settings</string>
+    <string name="menu_userList">Пользователи</string>
+    <string name="menu_about">О программе</string>
 
 </resources>
