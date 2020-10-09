@@ -6,7 +6,7 @@ import dagger.Provides
 import ru.samtakoy.listtest.domain.TimestampHolder
 import ru.samtakoy.listtest.domain.TimestampHolderImpl
 import ru.samtakoy.listtest.domain.model.cache.CacheModel
-import ru.samtakoy.listtest.domain.model.cache.CacheModelImpl
+import ru.samtakoy.listtest.domain.model.cache.impl.CacheModelMediatorImpl
 import ru.samtakoy.listtest.domain.model.cache.CacheSettings
 import javax.inject.Singleton
 
@@ -19,7 +19,7 @@ abstract class DomainModule {
 
     @Binds
     @Singleton
-    abstract fun provideCacheModel(cacheModel: CacheModelImpl): CacheModel
+    abstract fun provideCacheModel(cacheModel: CacheModelMediatorImpl): CacheModel
 
     @Module
     companion object{

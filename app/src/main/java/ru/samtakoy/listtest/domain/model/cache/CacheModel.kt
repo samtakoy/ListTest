@@ -1,7 +1,6 @@
 package ru.samtakoy.listtest.domain.model.cache
 
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import ru.samtakoy.listtest.domain.model.Employee
@@ -16,6 +15,6 @@ interface CacheModel {
     fun observeEmployees(): Flow<List<Employee>>
 
     fun invalidateDbCache()
-    fun clearDbCache(): Deferred<Boolean>
+    fun clearDbCache(): Deferred<RequestResult>
 
 }

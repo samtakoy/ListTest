@@ -7,6 +7,8 @@ import moxy.presenterScope
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.domain.model.cache.CacheModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.*
+import ru.samtakoy.listtest.domain.model.cache.RequestResult
 
 private const val TAG = "SettingsPresenter"
 
@@ -16,7 +18,12 @@ class SettingsPresenter @Inject constructor(
 ) : MvpPresenter<SettingsView>(){
 
     init{
-
+        presenterScope.launch {
+            cache.observeErrors()
+                .collect{
+                    viewState.showMessage(it.errorTextId)
+                }
+        }
     }
 
     override fun onDestroy() {
@@ -30,10 +37,8 @@ class SettingsPresenter @Inject constructor(
     fun onUiClearDbCache() {
         presenterScope.launch {
             val result = cache.clearDbCache()
-            if(result.await()){
+            if(result.await() == RequestResult.SUCCESS){
                 viewState.showMessage(R.string.msg_settings_apply_success)
-            }else{
-                viewState.showMessage(R.string.msg_settings_apply_error)
             }
         }
     }

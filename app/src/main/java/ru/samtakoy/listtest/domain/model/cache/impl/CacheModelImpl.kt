@@ -1,7 +1,6 @@
-package ru.samtakoy.listtest.domain.model.cache
+package ru.samtakoy.listtest.domain.model.cache.impl
 
 import android.util.Log
-import kotlinx.coroutines.*
 import ru.samtakoy.listtest.domain.reps.EmployeeCacheRepository
 import ru.samtakoy.listtest.domain.reps.RemoteEmployeeRepository
 
@@ -9,68 +8,66 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.*
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.domain.Locals
+import ru.samtakoy.listtest.domain.TEST_TAG
 import ru.samtakoy.listtest.domain.TimestampHolder
 import ru.samtakoy.listtest.domain.model.Employee
+import ru.samtakoy.listtest.domain.model.cache.CacheError
+import ru.samtakoy.listtest.domain.model.cache.CacheSettings
+import ru.samtakoy.listtest.domain.model.cache.CacheStatus
+import ru.samtakoy.listtest.domain.model.cache.CacheValidator
 import ru.samtakoy.listtest.domain.model.dto.EmployeePack
-import ru.samtakoy.listtest.utils.extensions.CloseableCoroutineScope
-import javax.inject.Inject
 
 private const val TAG = "CacheModelImpl"
 
-class CacheModelImpl @Inject constructor(
+class CacheModelImpl constructor(
 
     cacheSettings: CacheSettings,
     val cacheRepository: EmployeeCacheRepository,
     val remoteRepository: RemoteEmployeeRepository,
     locals: Locals,
     val timestampHolder: TimestampHolder
-) : CacheModel {
+
+)  {
 
     private var cacheStatus = CacheStatus.NOT_INITIALIZED
     private var networkBusyStatus = MutableStateFlow<Boolean>(false)
     private var errors = BroadcastChannel<CacheError>(1)
     private val cacheValidator = CacheValidator(cacheSettings.expireIntervalSeconds, locals)
 
-    private val scopeExceptionHandler = CoroutineExceptionHandler{context, throwable ->
-        Log.e(TAG, "Exception in CacheModelImpl", throwable)
-    }
-    private val modelScope = CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main + scopeExceptionHandler)
+    suspend fun checkForInitialization() {
 
-    override fun checkForInitialization() {
-
-        modelScope.launch {
-            // TODO запрашивать буду, если (cacheStatus == CacheStatus.UNCOMPLETED)
-            // и нет данных в базе совсем (пометка в кеше, что данных нет)
-            // и т.к. корутины, запрошу количество элементов в базе и все валидирую (предварительно)
-            if (cacheStatus == CacheStatus.NOT_INITIALIZED) {
-                cacheValidator.validateByTimestamp(timestampHolder.timestampSeconds)
-                retrieveInitialData()
-            }
+        // TODO запрашивать буду, если (cacheStatus == CacheStatus.UNCOMPLETED)
+        // и нет данных в базе совсем (пометка в кеше, что данных нет)
+        // и т.к. корутины, запрошу количество элементов в базе и все валидирую (предварительно)
+        if (cacheStatus == CacheStatus.NOT_INITIALIZED) {
+            cacheValidator.validateByTimestamp(timestampHolder.timestampSeconds)
+            retrieveInitialData()
         }
     }
 
-    private fun retrieveInitialData() {
+    private suspend fun retrieveInitialData() {
 
-        modelScope.launch {
+        if(cacheValidator.isSynchronized()){
+            changeCacheStatus(CacheStatus.SYNCHRONIZED)
+        } else {
+            changeCacheStatus(CacheStatus.UNCOMPLETED)
 
-            if(cacheValidator.isSynchronized()){
-                changeCacheStatus(CacheStatus.SYNCHRONIZED)
-            } else {
-                changeCacheStatus(CacheStatus.UNCOMPLETED)
+            // TODO пересмотреть логику состояний и валидации кеша
+            if(!cacheValidator.hasCacheRecord || cacheValidator.pagesLoaded==0) {
                 retrieveMoreEmployees()
             }
         }
     }
 
-    override fun observeNetworkBusyStatus(): StateFlow<Boolean>{
+    fun observeNetworkBusyStatus(): StateFlow<Boolean>{
         return networkBusyStatus
     }
 
-    override fun observeErrors(): Flow<CacheError> {
-        return errors.asFlow()
+    fun observeErrors(): BroadcastChannel<CacheError> {
+        return errors
     }
 
-    override fun observeEmployees(): Flow<List<Employee>> = cacheRepository.getEmployees()
+    fun observeEmployees(): Flow<List<Employee>> = cacheRepository.getEmployees()
 
     private fun changeCacheStatus(newStatus: CacheStatus){
 
@@ -81,18 +78,17 @@ class CacheModelImpl @Inject constructor(
         }
     }
 
-    override fun retrieveMoreEmployees() {
+    suspend fun retrieveMoreEmployees() {
 
-        modelScope.launch {
-            if (cacheStatus == CacheStatus.UNCOMPLETED) {
+        if (cacheStatus == CacheStatus.UNCOMPLETED) {
 
-                changeCacheStatus(CacheStatus.DATA_RETRIEVING)
+            changeCacheStatus(CacheStatus.DATA_RETRIEVING)
 
-                val pageNum =
-                    if (cacheValidator.hasCacheRecord) cacheValidator.pagesLoaded + 1 else 1
-                Log.d(TAG, "*** data retrieving, pageNum:${pageNum}")
+            val pageNum =
+                if (cacheValidator.hasCacheRecord) cacheValidator.pagesLoaded + 1 else 1
+            Log.d(TAG, "*** data retrieving, pageNum:${pageNum}")
 
-                val emplPackResult: Result<EmployeePack> =
+                val emplPackResult: Result<EmployeePack?> =
                     remoteRepository.retrieveMoreEmployees(pageNum)
 
                 if (emplPackResult.isFailure) {
@@ -103,7 +99,6 @@ class CacheModelImpl @Inject constructor(
                 } else {
                     onRetrieveEmployeesComplete(emplPackResult.getOrNull()!!)
                 }
-            }
         }
     }
 
@@ -156,26 +151,23 @@ class CacheModelImpl @Inject constructor(
         }
     }
 
-    override fun invalidateDbCache() {
-        modelScope.launch {
-            cacheValidator.invalidate()
-        }
+    suspend fun invalidateDbCache() {
+        cacheValidator.invalidate()
     }
 
-    override fun clearDbCache(): Deferred<Boolean> =
-        modelScope.async {
+    suspend fun clearDbCache():Boolean {
 
-            if (cacheStatus.isNetworkBusy) {
-                errors.send(CacheError(R.string.cache_err_loading_in_progress))
-                false
-            } else {
-                invalidateDbCache()
-                changeCacheStatus(CacheStatus.NOT_INITIALIZED)
-                cacheRepository.clearEmployees()
-                true
-            }
+        if (cacheStatus.isNetworkBusy) {
+            errors.send(CacheError(R.string.cache_err_loading_in_progress))
+            return false
+        } else {
+            invalidateDbCache()
+            changeCacheStatus(CacheStatus.NOT_INITIALIZED)
+
+            cacheRepository.clearEmployees()
+            return true
         }
-
+    }
 
 }
 

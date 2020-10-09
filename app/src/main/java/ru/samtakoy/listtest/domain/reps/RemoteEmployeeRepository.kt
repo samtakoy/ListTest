@@ -4,6 +4,6 @@ import ru.samtakoy.listtest.domain.model.dto.EmployeePack
 
 interface RemoteEmployeeRepository {
 
-    suspend fun retrieveMoreEmployees(nextPageNum: Int): Result<EmployeePack>
+    suspend fun retrieveMoreEmployees(nextPageNum: Int): Result<EmployeePack?>
 
 }
