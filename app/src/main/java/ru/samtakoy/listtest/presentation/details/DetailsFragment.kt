@@ -44,8 +44,8 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView{
 
     override fun showEmployee(employee: Employee) {
 
-        firstName.text = employee.firstName
-        lastName.text = employee.lastName
+        firstName.text = employee.getVisibleFirstName()
+        lastName.text = employee.getVisibleLastName()
 
         val phoneString = requireContext().resources.getString(R.string.details_phone_text)
         phone.text = MessageFormat.format(phoneString, employee.phone)
