@@ -21,7 +21,6 @@ class ListPresenter @Inject constructor(
     private val presenterScope = CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     init {
-        Log.e(TAG, "debug")
         cache.checkForInitialization()
         observeUpdates()
     }
