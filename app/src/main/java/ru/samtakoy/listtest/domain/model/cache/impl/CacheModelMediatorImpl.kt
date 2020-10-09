@@ -89,7 +89,7 @@ class CacheModelMediatorImpl @Inject constructor(
                 } else{
                     result.complete(RequestResult.IGNORED)
                 }
-            } finally {
+            } catch (t: Throwable) {
                 result.complete(RequestResult.FAILED)
             }
         }

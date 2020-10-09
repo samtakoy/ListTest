@@ -36,8 +36,8 @@ class SettingsPresenter @Inject constructor(
 
     fun onUiClearDbCache() {
         presenterScope.launch {
-            val result = cache.clearDbCache()
-            if(result.await() == RequestResult.SUCCESS){
+            val result = cache.clearDbCache().await()
+            if(result == RequestResult.SUCCESS){
                 viewState.showMessage(R.string.msg_settings_apply_success)
             }
         }
