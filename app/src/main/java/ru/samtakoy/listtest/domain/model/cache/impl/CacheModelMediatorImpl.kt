@@ -10,7 +10,6 @@ import ru.samtakoy.listtest.domain.reps.RemoteEmployeeRepository
 import javax.inject.Inject
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*
-import ru.samtakoy.listtest.domain.TEST_TAG
 import ru.samtakoy.listtest.domain.model.cache.CacheError
 import ru.samtakoy.listtest.domain.model.cache.CacheModel
 import ru.samtakoy.listtest.domain.model.cache.CacheSettings
@@ -38,7 +37,6 @@ class CacheModelMediatorImpl @Inject constructor(
     )
 
     private val scopeExceptionHandler = CoroutineExceptionHandler{context, throwable ->
-        Log.e(TEST_TAG, "Exception")
         Log.e(TAG, "Exception in CacheModelImpl \n${throwable.stackTraceToString()}" )
     }
     private val modelScope = CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main + scopeExceptionHandler)
@@ -47,8 +45,6 @@ class CacheModelMediatorImpl @Inject constructor(
     private fun CoroutineScope.cacheActor() = actor<CacheCommand>(capacity = Channel.UNLIMITED){
 
         for(command in channel){
-
-            Log.d(TEST_TAG, "...new command: ${command.javaClass.simpleName}")
 
             try {
                 when (command) {
@@ -68,8 +64,6 @@ class CacheModelMediatorImpl @Inject constructor(
                     }
                 } // when
             } finally {
-
-                Log.d(TEST_TAG, "...released: ${command.javaClass.simpleName}")
 
                 command.releasePermission()
             }

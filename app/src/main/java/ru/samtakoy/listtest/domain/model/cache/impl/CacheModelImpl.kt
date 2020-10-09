@@ -8,7 +8,6 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.*
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.domain.Locals
-import ru.samtakoy.listtest.domain.TEST_TAG
 import ru.samtakoy.listtest.domain.TimestampHolder
 import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.domain.model.cache.CacheError
@@ -88,19 +87,20 @@ class CacheModelImpl constructor(
                 if (cacheValidator.hasCacheRecord) cacheValidator.pagesLoaded + 1 else 1
             Log.d(TAG, "*** data retrieving, pageNum:${pageNum}")
 
-                val emplPackResult: Result<EmployeePack?> =
-                    remoteRepository.retrieveMoreEmployees(pageNum)
+            val emplPackResult: Result<EmployeePack?>? =
+                remoteRepository.retrieveMoreEmployees(pageNum)
 
-                if (emplPackResult.isFailure) {
-                    onRetrieveEmployeesError(
-                        emplPackResult.exceptionOrNull(),
-                        R.string.cache_err_cant_reuest
-                    )
-                } else {
-                    onRetrieveEmployeesComplete(emplPackResult.getOrNull()!!)
-                }
+            if (emplPackResult?.isFailure != false) {
+                onRetrieveEmployeesError(
+                    emplPackResult?.exceptionOrNull(),
+                    R.string.cache_err_cant_reuest
+                )
+            } else {
+                onRetrieveEmployeesComplete(emplPackResult.getOrNull()!!)
+            }
         }
     }
+
 
     private suspend fun onRetrieveEmployeesComplete(resultPage: EmployeePack) {
 
@@ -137,7 +137,7 @@ class CacheModelImpl constructor(
     }
 
     private suspend fun onRetrieveEmployeesError(throwable: Throwable?, errStringId: Int) {
-        Log.e(TAG, "onRetrieveEmployeesError", throwable)
+        Log.e(TAG, "onRetrieveEmployeesError:\n${throwable!!.stackTraceToString()}")
 
         errors.send(CacheError(errStringId))
         processStatusAfterEmployeeGettingError()
