@@ -34,7 +34,7 @@
         android:label=""
         >
         <argument
-            android:name="userId"
+            android:name="employeeId"
             app:argType="integer" />
     </fragment>
     <fragment

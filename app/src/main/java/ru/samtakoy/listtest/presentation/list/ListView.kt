@@ -1,11 +1,11 @@
 package ru.samtakoy.listtest.presentation.list
 
-import ru.samtakoy.listtest.domain.model.Employee
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.AddToEndSingleTagStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
+import ru.samtakoy.listtest.domain.model.Employee
 
 interface ListView : MvpView{
 
@@ -23,4 +23,6 @@ interface ListView : MvpView{
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun navigateToSettings()
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun navigateToEmployeeDetails(employeeId: Int)
 }

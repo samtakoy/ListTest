@@ -26,6 +26,8 @@ class EmployeeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         itemView.lastName.text = item.getVisibleLastName()
         Glide.with(itemView.context)
             .load(item.avatar)
+            .placeholder(R.drawable.ic_person_gray_24dp)
+            .error(R.drawable.ic_person_gray_24dp)
             .into(itemView.icon)
     }
 

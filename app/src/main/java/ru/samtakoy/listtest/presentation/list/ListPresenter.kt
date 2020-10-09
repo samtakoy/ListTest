@@ -1,14 +1,16 @@
 package ru.samtakoy.listtest.presentation.list
 
 import android.util.Log
-import ru.samtakoy.listtest.domain.model.Employee
-import ru.samtakoy.listtest.utils.extensions.CloseableCoroutineScope
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.domain.model.cache.CacheModel
+import ru.samtakoy.listtest.utils.extensions.CloseableCoroutineScope
 import javax.inject.Inject
-import kotlinx.coroutines.flow.*
 
 
 @InjectViewState
@@ -75,6 +77,10 @@ class ListPresenter @Inject constructor(
 
     fun onUiCheckCacheStatus() {
         cache.checkForInitialization()
+    }
+
+    fun onUiEmployeeClick(employeeId: Int) {
+        viewState.navigateToEmployeeDetails(employeeId)
     }
 
 

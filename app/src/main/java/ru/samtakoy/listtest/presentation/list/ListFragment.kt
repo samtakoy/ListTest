@@ -3,7 +3,6 @@ package ru.samtakoy.listtest.presentation.list
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -127,7 +126,7 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
 
     private fun createAdapter(): EmployeeListAdapter {
         return EmployeeListAdapter{ view, employee ->
-            //tryScrollOneItemDown()
+            presenter.onUiEmployeeClick(employee.id)
         }
     }
 
@@ -199,6 +198,12 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
     override fun navigateToSettings() {
         findNavController().navigate(
             ListFragmentDirections.toSettings()
+        )
+    }
+
+    override fun navigateToEmployeeDetails(employeeId: Int) {
+        findNavController().navigate(
+            ListFragmentDirections.toDetails(employeeId)
         )
     }
 }
