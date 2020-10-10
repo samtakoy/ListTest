@@ -1,14 +1,17 @@
 package ru.samtakoy.listtest.presentation.list
 
-import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.*
+import androidx.core.view.ViewCompat
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_employee_list.*
 import kotlinx.android.synthetic.main.fragment_employee_list.view.*
@@ -18,6 +21,7 @@ import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
 import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.presentation.list.inner.EmployeeListAdapter
+import ru.samtakoy.listtest.presentation.list.inner.EmployeeViewHolder
 import ru.samtakoy.listtest.presentation.list.inner.InfiniteScrollListener
 import ru.samtakoy.listtest.presentation.list.inner.SwipeItemHelper
 import javax.inject.Inject
@@ -47,22 +51,7 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
         Di.appComponent.inject(this)
         super.onCreate(savedInstanceState)
 
-        if(savedInstanceState == null){
-            clearGlideCache()
-        }
-
         setHasOptionsMenu(true)
-    }
-
-    private fun clearGlideCache() {
-        object:AsyncTask<Void, Void, Void> (){
-            override fun doInBackground(vararg params: Void?): Void? {
-                Glide
-                    .get(requireContext().applicationContext)
-                    .clearDiskCache();
-                return null
-            }
-        }
     }
 
     override fun onCreateView(
@@ -106,7 +95,12 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
 
             swipeItemHelper = SwipeItemHelper(requireContext(), this@ListFragment)
 
-            // TODO transition
+            // for shared element back transition
+            postponeEnterTransition()
+            viewTreeObserver.addOnPreDrawListener {
+                startPostponedEnterTransition()
+                true
+            }
         }
     }
 
@@ -124,8 +118,11 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
         }
     }
 
+    private var clickedView: View? = null
+
     private fun createAdapter(): EmployeeListAdapter {
         return EmployeeListAdapter{ view, employee ->
+            clickedView = view
             presenter.onUiEmployeeClick(employee.id)
         }
     }
@@ -188,22 +185,61 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
+        /*
         when(item.itemId){
             R.id.menu_item_settings -> presenter.onUiSettingsClick()
-        }
+        }*/
 
-        return super.onOptionsItemSelected(item)
+        return item.onNavDestinationSelected(findNavController()) || super.onOptionsItemSelected(item)
     }
 
+    /*
     override fun navigateToSettings() {
         findNavController().navigate(
             ListFragmentDirections.toSettings()
         )
-    }
+    }*/
 
     override fun navigateToEmployeeDetails(employeeId: Int) {
-        findNavController().navigate(
-            ListFragmentDirections.toDetails(employeeId)
-        )
+        var holder: EmployeeViewHolder? = null
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            holder = getRecyclerItemViewByEmployeeId(employeeId) as EmployeeViewHolder
+
+            if(holder != null){
+                //sharedElementView.is
+                if(clickedView == holder.itemView){
+                    Log.d("tag", "1")
+                }else{
+                    Log.d("tag", "2")
+                }
+                val extras = FragmentNavigatorExtras(
+                    holder.avatarTrView to ViewCompat.getTransitionName(holder.avatarTrView)!!,
+                    holder.firstNameTrView to ViewCompat.getTransitionName(holder.firstNameTrView)!!,
+                    holder.lastNameTrView to ViewCompat.getTransitionName(holder.lastNameTrView)!!,
+                    holder.itemView to ViewCompat.getTransitionName(holder.itemView)!!
+                )
+                findNavController().navigate(ListFragmentDirections.toDetails(employeeId), extras)
+                return
+            }
+        }
+
+        // usual navigation
+        findNavController().navigate(ListFragmentDirections.toDetails(employeeId))
     }
+
+    private fun getRecyclerItemViewByEmployeeId(employeeId: Int): EmployeeViewHolder?{
+
+        for(i in 0 until recyclerLayoutManager.childCount){
+            var view = recyclerLayoutManager.getChildAt(i)
+            if(view != null) {
+                var viewHolder = recyclerView.getChildViewHolder(view) as EmployeeViewHolder
+                if(viewHolder.employeeId == employeeId){
+                    return viewHolder
+                }
+            }
+        }
+        return null
+    }
+
 }

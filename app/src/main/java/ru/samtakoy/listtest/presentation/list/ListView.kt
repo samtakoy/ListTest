@@ -21,8 +21,8 @@ interface ListView : MvpView{
     @StateStrategyType(AddToEndSingleTagStrategy::class, tag = "LOADING")
     fun hideDataLoading()
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
-    fun navigateToSettings()
+    //@StateStrategyType(OneExecutionStateStrategy::class)
+    //fun navigateToSettings()
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun navigateToEmployeeDetails(employeeId: Int)
 }

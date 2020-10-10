@@ -15,13 +15,13 @@
 \nRetrofit 2,
 \nDagger 2,
 \nDynamicAnimation
+\nSharedElement Animation
 \nMVP: Moxy
 \n
 \nTodo:
 \n
 \nMvvm: ViewModel+Livedata
 \nBehaviors
-\nShared Anims
 \nCustom Views
 \nТесты
 

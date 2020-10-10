@@ -3,6 +3,7 @@ package ru.samtakoy.listtest.presentation.list.inner
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,20 +11,35 @@ import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.employee_list_item.view.*
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.domain.model.Employee
+import ru.samtakoy.listtest.presentation.getAvatarTransitionName
+import ru.samtakoy.listtest.presentation.getContainerTransitionName
+import ru.samtakoy.listtest.presentation.getFirstNameTransitionName
+import ru.samtakoy.listtest.presentation.getLastNameTransitionName
 
 
 class EmployeeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
 
-
+    var employeeId: Int = 0
+        private set
+    val avatarTrView: View = itemView.icon
+    val firstNameTrView: View = itemView.firstName
+    val lastNameTrView: View = itemView.lastName
 
     fun bind(item: Employee, itemClickListener: ((view: View, empl: Employee) -> Unit)) {
 
-        itemView.setOnClickListener(View.OnClickListener {
+        itemView.setOnClickListener {
             itemClickListener.invoke(it, item)
-        })
+        }
 
         itemView.firstName.text = item.getVisibleFirstName()
         itemView.lastName.text = item.getVisibleLastName()
+
+        employeeId = item.id
+        ViewCompat.setTransitionName(avatarTrView, item.getAvatarTransitionName())
+        ViewCompat.setTransitionName(firstNameTrView, item.getFirstNameTransitionName())
+        ViewCompat.setTransitionName(lastNameTrView, item.getLastNameTransitionName())
+        ViewCompat.setTransitionName(itemView, item.getContainerTransitionName())
+
         Glide.with(itemView.context)
             .load(item.avatar)
             .placeholder(R.drawable.ic_person_gray_24dp)
@@ -31,6 +47,14 @@ class EmployeeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
             .into(itemView.icon)
     }
 
+    fun unbind() {
+        ViewCompat.setTransitionName(avatarTrView, "")
+        ViewCompat.setTransitionName(firstNameTrView, "")
+        ViewCompat.setTransitionName(lastNameTrView, "")
+        ViewCompat.setTransitionName(itemView, "")
+        Glide.with(itemView.context)
+            .clear(itemView.icon)
+    }
 
 
 }
@@ -52,7 +76,10 @@ class EmployeeListAdapter(
         holder.bind(item, itemClickListener)
     }
 
-
+    override fun onViewRecycled(holder: EmployeeViewHolder) {
+        super.onViewRecycled(holder)
+        holder.unbind()
+    }
 }
 
 

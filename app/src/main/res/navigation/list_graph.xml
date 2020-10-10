@@ -13,6 +13,7 @@
         <action
             android:id="@+id/to_details"
             app:destination="@id/detailsFragment"
+
             app:enterAnim="@anim/fragment_fade_enter"
             app:exitAnim="@anim/fragment_fade_exit"
             app:popEnterAnim="@anim/fragment_fade_enter"
@@ -21,6 +22,7 @@
         <action
             android:id="@+id/to_settings"
             app:destination="@id/settingsFragment"
+
             app:enterAnim="@anim/fragment_fade_enter"
             app:exitAnim="@anim/fragment_fade_exit"
             app:popEnterAnim="@anim/fragment_fade_enter"

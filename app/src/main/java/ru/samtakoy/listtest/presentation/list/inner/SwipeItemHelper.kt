@@ -115,13 +115,16 @@ class SwipeItemHelper(
                 return false
             }
             MotionEvent.ACTION_MOVE -> {
-                velocityTracker!!.addMovement(e)
-                val dX = e.x - initialTouchX
-                val dragged = dX > touchSlop
-                if(dragged){
-                    swipedChild = rv.findChildViewUnder(e.x, e.y)
+                if(velocityTracker != null) {
+                    velocityTracker!!.addMovement(e)
+                    val dX = e.x - initialTouchX
+                    val dragged = dX > touchSlop
+                    if (dragged) {
+                        swipedChild = rv.findChildViewUnder(e.x, e.y)
+                    }
+                    return dragged
                 }
-                return dragged
+                return false
             }
             else -> return false
         }

@@ -16,9 +16,14 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_host_fragment_container
         )
     }
-    private val appBarConfiguration by lazy { AppBarConfiguration.Builder(R.id.listGraph, R.id.aboutGraph).build() }
+    private val appBarConfiguration by lazy {
+        AppBarConfiguration.Builder(R.id.listFragment, R.id.aboutFragment)
+            .setFallbackOnNavigateUpListener { onNavigateUp() }
+            .build()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -29,6 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupActionBar() {
         //setSupportActionBar(main_toolbar)
+        getSupportActionBar()!!.setHomeButtonEnabled(true)
         setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
