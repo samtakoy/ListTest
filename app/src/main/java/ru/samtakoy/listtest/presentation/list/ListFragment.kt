@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
-import androidx.core.view.ViewCompat
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -24,6 +23,7 @@ import ru.samtakoy.listtest.presentation.list.inner.EmployeeListAdapter
 import ru.samtakoy.listtest.presentation.list.inner.EmployeeViewHolder
 import ru.samtakoy.listtest.presentation.list.inner.InfiniteScrollListener
 import ru.samtakoy.listtest.presentation.list.inner.SwipeItemHelper
+import ru.samtakoy.listtest.presentation.transitionPair
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -214,10 +214,10 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
                     Log.d("tag", "2")
                 }
                 val extras = FragmentNavigatorExtras(
-                    holder.avatarTrView to ViewCompat.getTransitionName(holder.avatarTrView)!!,
-                    holder.firstNameTrView to ViewCompat.getTransitionName(holder.firstNameTrView)!!,
-                    holder.lastNameTrView to ViewCompat.getTransitionName(holder.lastNameTrView)!!,
-                    holder.itemView to ViewCompat.getTransitionName(holder.itemView)!!
+                    holder.avatarTrView.transitionPair(),
+                    holder.firstNameTrView.transitionPair(),
+                    holder.lastNameTrView.transitionPair(),
+                    holder.itemView.transitionPair()
                 )
                 findNavController().navigate(ListFragmentDirections.toDetails(employeeId), extras)
                 return
