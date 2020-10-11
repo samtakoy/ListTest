@@ -24,6 +24,7 @@ import ru.samtakoy.listtest.presentation.list.inner.EmployeeViewHolder
 import ru.samtakoy.listtest.presentation.list.inner.InfiniteScrollListener
 import ru.samtakoy.listtest.presentation.list.inner.SwipeItemHelper
 import ru.samtakoy.listtest.presentation.transitionPair
+import ru.samtakoy.listtest.presentation.waitForTransition
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -97,10 +98,7 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
 
             // for shared element back transition
             postponeEnterTransition()
-            viewTreeObserver.addOnPreDrawListener {
-                startPostponedEnterTransition()
-                true
-            }
+            waitForTransition(this)
         }
     }
 
