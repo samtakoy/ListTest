@@ -10,6 +10,10 @@ class SharedEmployeeViewModel : ViewModel() {
         readyEmployeeIdLiveData.value = id
     }
     fun getImageReadyEmployeeId(): LiveData<Int> = readyEmployeeIdLiveData
+    fun resetReady() {
+        readyEmployeeIdLiveData.value = -1
+    }
+
     val readyEmployeeId: Int?
         get() = readyEmployeeIdLiveData.value
 

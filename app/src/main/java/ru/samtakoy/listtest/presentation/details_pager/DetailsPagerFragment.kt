@@ -69,6 +69,7 @@ class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView{
     }
 
     private fun observeImageReady() {
+        currentEmployeeSharedModel.resetReady()
         currentEmployeeSharedModel?.getImageReadyEmployeeId().observe(viewLifecycleOwner, {
             val employeeId = requireArguments().getInt(ARG_EMPLOYEE_ID)
             if (it == employeeId) {
