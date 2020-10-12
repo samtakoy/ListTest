@@ -12,7 +12,6 @@ import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.domain.model.cache.CacheError
 import ru.samtakoy.listtest.domain.model.cache.CacheSettings
 import ru.samtakoy.listtest.domain.model.cache.CacheStatus
-import ru.samtakoy.listtest.domain.model.cache.CacheValidator
 import ru.samtakoy.listtest.domain.model.dto.EmployeePack
 import ru.samtakoy.listtest.domain.reps.EmployeeCacheRepository
 import ru.samtakoy.listtest.domain.reps.RemoteEmployeeRepository

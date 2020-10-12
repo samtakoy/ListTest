@@ -1,4 +1,4 @@
-package ru.samtakoy.listtest.domain.model.cache
+package ru.samtakoy.listtest.domain.model.cache.impl
 
 import ru.samtakoy.listtest.domain.Locals
 
