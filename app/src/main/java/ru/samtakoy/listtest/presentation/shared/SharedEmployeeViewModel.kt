@@ -5,13 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class SharedEmployeeViewModel : ViewModel() {
-    private val employeeIdLiveData = MutableLiveData<Int>()
+    private val readyEmployeeIdLiveData = MutableLiveData<Int>()
     fun onImageReady(id: Int) {
-        employeeIdLiveData.value = id
+        readyEmployeeIdLiveData.value = id
     }
-    fun getImageReadyEmployeeId(): LiveData<Int> = employeeIdLiveData
+    fun getImageReadyEmployeeId(): LiveData<Int> = readyEmployeeIdLiveData
     val readyEmployeeId: Int?
-        get() = employeeIdLiveData.value
+        get() = readyEmployeeIdLiveData.value
 
     var currentEmployeeId: Int = -1
 }
