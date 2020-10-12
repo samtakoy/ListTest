@@ -3,8 +3,8 @@ package ru.samtakoy.listtest.app.di
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
-import ru.samtakoy.listtest.presentation.details.DetailsFragment
-import ru.samtakoy.listtest.presentation.details_pager.DetailsPagerFragment
+import ru.samtakoy.listtest.presentation.details.page.DetailsFragment
+import ru.samtakoy.listtest.presentation.details.pager.DetailsPagerFragment
 import ru.samtakoy.listtest.presentation.list.ListFragment
 import ru.samtakoy.listtest.presentation.settings.SettingsFragment
 import javax.inject.Singleton

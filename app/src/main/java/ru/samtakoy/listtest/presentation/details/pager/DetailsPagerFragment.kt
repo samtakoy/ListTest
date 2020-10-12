@@ -1,4 +1,4 @@
-package ru.samtakoy.listtest.presentation.details_pager
+package ru.samtakoy.listtest.presentation.details.pager
 
 import android.os.Build
 import android.os.Bundle
@@ -14,14 +14,14 @@ import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
-import ru.samtakoy.listtest.presentation.details_pager.inner.PagerAdapter
+import ru.samtakoy.listtest.presentation.details.pager.inner.PagerAdapter
 import ru.samtakoy.listtest.presentation.shared.SharedEmployeeViewModel
 import javax.inject.Inject
 import javax.inject.Provider
 
 private const val ARG_EMPLOYEE_ID = "employeeId"
 
-class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView{
+class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView {
 
 
     @Inject

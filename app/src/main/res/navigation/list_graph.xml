@@ -41,7 +41,7 @@
     </fragment>
     <fragment
         android:id="@+id/detailsFragment"
-        android:name="ru.samtakoy.listtest.presentation.details.DetailsFragment"
+        android:name="ru.samtakoy.listtest.presentation.details.page.DetailsFragment"
         android:label=""
         >
         <argument
@@ -50,7 +50,7 @@
     </fragment>
     <fragment
         android:id="@+id/detailsPagerFragment"
-        android:name="ru.samtakoy.listtest.presentation.details_pager.DetailsPagerFragment"
+        android:name="ru.samtakoy.listtest.presentation.details.pager.DetailsPagerFragment"
         android:label=""
         >
         <argument

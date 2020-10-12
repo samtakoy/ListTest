@@ -1,4 +1,4 @@
-package ru.samtakoy.listtest.presentation.details_pager
+package ru.samtakoy.listtest.presentation.details.pager
 
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch

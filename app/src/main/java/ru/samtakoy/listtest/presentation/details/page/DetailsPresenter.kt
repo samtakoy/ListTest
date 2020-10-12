@@ -1,4 +1,4 @@
-package ru.samtakoy.listtest.presentation.details
+package ru.samtakoy.listtest.presentation.details.page
 
 import android.util.Log
 import kotlinx.coroutines.flow.collect

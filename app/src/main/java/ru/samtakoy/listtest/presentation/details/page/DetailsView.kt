@@ -1,19 +1,20 @@
-package ru.samtakoy.listtest.presentation.details_pager
+package ru.samtakoy.listtest.presentation.details.page
 
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
+import ru.samtakoy.listtest.domain.model.Employee
 
-interface DetailsPagerView : MvpView{
-
-    @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setData(idList: List<Int>)
+interface DetailsView : MvpView{
 
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setCurrentEmployeePosition(positionIdx: Int)
+    fun showEmployee(employee: Employee)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showError(errorId: Int)
+
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun updateToolbarTitle(title: String)
 
 }

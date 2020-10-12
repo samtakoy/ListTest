@@ -1,9 +1,9 @@
-package ru.samtakoy.listtest.presentation.details_pager.inner
+package ru.samtakoy.listtest.presentation.details.pager.inner
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import ru.samtakoy.listtest.presentation.details.DetailsFragment
+import ru.samtakoy.listtest.presentation.details.page.DetailsFragment
 import java.lang.ref.WeakReference
 
 class PagerAdapter (

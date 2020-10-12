@@ -1,4 +1,4 @@
-package ru.samtakoy.listtest.presentation.details
+package ru.samtakoy.listtest.presentation.details.page
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -29,14 +29,12 @@ import ru.samtakoy.listtest.presentation.shared.SharedEmployeeViewModel
 import java.text.MessageFormat
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.collections.MutableList
-import kotlin.collections.MutableMap
 import kotlin.collections.set
 
 
 private const val ARG_EMPLOYEE_ID = "employeeId"
 
-class DetailsFragment : MvpAppCompatFragment(), DetailsView{
+class DetailsFragment : MvpAppCompatFragment(), DetailsView {
 
     companion object{
         fun create(employeeId: Int): DetailsFragment = DetailsFragment().apply {
