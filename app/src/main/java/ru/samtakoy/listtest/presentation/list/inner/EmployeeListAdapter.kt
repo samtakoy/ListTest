@@ -27,6 +27,7 @@ class EmployeeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
 
     fun bind(item: Employee, itemClickListener: ((view: View, empl: Employee) -> Unit)) {
 
+        itemView.tag = item.id
         itemView.setOnClickListener {
             itemClickListener.invoke(it, item)
         }

@@ -8,8 +8,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
-import androidx.transition.TransitionInflater
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -22,19 +23,33 @@ import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
 import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.presentation.getAvatarTransitionName
-import ru.samtakoy.listtest.presentation.getContainerTransitionName
 import ru.samtakoy.listtest.presentation.getFirstNameTransitionName
 import ru.samtakoy.listtest.presentation.getLastNameTransitionName
+import ru.samtakoy.listtest.presentation.shared.SharedEmployeeViewModel
 import java.text.MessageFormat
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.collections.MutableList
+import kotlin.collections.MutableMap
+import kotlin.collections.set
+
+
+private const val ARG_EMPLOYEE_ID = "employeeId"
 
 class DetailsFragment : MvpAppCompatFragment(), DetailsView{
+
+    companion object{
+        fun create(employeeId: Int): DetailsFragment = DetailsFragment().apply {
+            arguments = bundleOf(
+                ARG_EMPLOYEE_ID to employeeId
+            )
+        }
+    }
 
     @Inject
     lateinit var factoryProvider: Provider<DetailsPresenter.Factory>
     private val presenter by moxyPresenter {
-        val employeeId = requireArguments().getInt("employeeId")
+        val employeeId = requireArguments().getInt(ARG_EMPLOYEE_ID)
         factoryProvider.get().create(employeeId)
     }
 
@@ -56,17 +71,10 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            setSharedElementTransitionOnEnter()
-            postponeEnterTransition()
-        }
     }
 
     override fun onDestroyView() {
-
         cancelAnimations()
-
         super.onDestroyView()
     }
 
@@ -86,8 +94,33 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView{
         ViewCompat.setTransitionName(avatar, employee.getAvatarTransitionName())
         ViewCompat.setTransitionName(firstName, employee.getFirstNameTransitionName())
         ViewCompat.setTransitionName(lastName, employee.getLastNameTransitionName())
-        ViewCompat.setTransitionName(container, employee.getContainerTransitionName())
+        //ViewCompat.setTransitionName(container, employee.getContainerTransitionName())
         startEnterTransitionAfterLoadingImage(employee.avatar, avatar)
+    }
+
+    fun onMapSharedElements(
+        names: MutableList<String>,
+        sharedElements: MutableMap<String, View>
+    ) {
+        names.clear()
+        sharedElements.clear()
+
+        mapOneSharedElements(names, sharedElements, avatar)
+        mapOneSharedElements(names, sharedElements, firstName)
+        mapOneSharedElements(names, sharedElements, lastName)
+        //mapOneSharedElements(names, sharedElements, container)
+    }
+
+    private fun mapOneSharedElements(
+        names: MutableList<String>,
+        sharedElements: MutableMap<String, View>,
+        view: View
+    ) {
+        val transitionName = ViewCompat.getTransitionName(view)
+        if(transitionName != null) {
+            names.add(transitionName)
+            sharedElements[transitionName] = view
+        }
     }
 
     override fun showError(errorId: Int) {
@@ -99,11 +132,6 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView{
         activity.supportActionBar!!.title = title
     }
 
-
-    private fun setSharedElementTransitionOnEnter(){
-        sharedElementEnterTransition = TransitionInflater.from(requireContext()).inflateTransition(R.transition.shared_element_transition)
-    }
-
     private fun startEnterTransitionAfterLoadingImage(imageUrl: String, imageView: ImageView){
         Glide.with(requireContext())
             .load(imageUrl)
@@ -111,14 +139,15 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView{
             .placeholder(R.drawable.ic_person_gray_24dp)
             .error(R.drawable.ic_person_err_gray_24dp)
             .dontAnimate()
-            .listener(object: RequestListener<Drawable>{
+            .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    startPostponedEnterTransition()
+                    //startPostponedEnterTransition()
+                    onImageReady()
                     return false
                 }
 
@@ -129,12 +158,18 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView{
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    startPostponedEnterTransition()
+                    //startPostponedEnterTransition()
+                    onImageReady()
                     return false
                 }
             }
             )
             .into(imageView)
+    }
+
+    private fun onImageReady(){
+        val model = ViewModelProvider(requireActivity()).get(SharedEmployeeViewModel::class.java)
+        model.onImageReady(requireArguments().getInt(ARG_EMPLOYEE_ID))
     }
 
 }

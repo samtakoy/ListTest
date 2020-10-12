@@ -22,6 +22,11 @@ class EmployeeCacheRepositoryImpl @Inject constructor(
             .flowOn(dispatchers.database)
             .map { it -> it.map {it.toDomainEntity()}}
 
+    override fun getEmployeeIds(): Flow<List<Int>> =
+        db.employeeData()
+            .getAllEmployeeIds()
+            .flowOn(dispatchers.database)
+
     override fun getEmployee(employeeId: Int): Flow<List<Employee>> =
         db.employeeData()
             .getEmployee(employeeId)

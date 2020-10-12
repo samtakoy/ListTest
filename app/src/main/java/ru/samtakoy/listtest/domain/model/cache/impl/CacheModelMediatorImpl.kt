@@ -2,19 +2,22 @@ package ru.samtakoy.listtest.domain.model.cache.impl
 
 import android.util.Log
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asFlow
 import ru.samtakoy.listtest.domain.Locals
 import ru.samtakoy.listtest.domain.TimestampHolder
 import ru.samtakoy.listtest.domain.model.Employee
-import ru.samtakoy.listtest.domain.reps.EmployeeCacheRepository
-import ru.samtakoy.listtest.domain.reps.RemoteEmployeeRepository
-import javax.inject.Inject
-import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.flow.*
 import ru.samtakoy.listtest.domain.model.cache.CacheError
 import ru.samtakoy.listtest.domain.model.cache.CacheModel
 import ru.samtakoy.listtest.domain.model.cache.CacheSettings
 import ru.samtakoy.listtest.domain.model.cache.RequestResult
+import ru.samtakoy.listtest.domain.reps.EmployeeCacheRepository
+import ru.samtakoy.listtest.domain.reps.RemoteEmployeeRepository
 import ru.samtakoy.listtest.utils.extensions.CloseableCoroutineScope
+import javax.inject.Inject
 
 private const val TAG = "CacheModelMediatorImpl"
 
@@ -103,17 +106,10 @@ class CacheModelMediatorImpl @Inject constructor(
         tryToSend(RetrieveMoreEmployees)
     }
 
-    override fun observeNetworkBusyStatus(): StateFlow<Boolean> {
-        return cacheModel.observeNetworkBusyStatus()
-    }
-
-    override fun observeErrors(): Flow<CacheError> {
-        return cacheModel.observeErrors().asFlow()
-    }
-
-    override fun observeEmployees(): Flow<List<Employee>> {
-        return cacheModel.observeEmployees()
-    }
+    override fun observeNetworkBusyStatus(): StateFlow<Boolean> = cacheModel.observeNetworkBusyStatus()
+    override fun observeErrors(): Flow<CacheError> = cacheModel.observeErrors().asFlow()
+    override fun observeEmployees(): Flow<List<Employee>>  = cacheModel.observeEmployees()
+    override fun observeEmployeeIds(): Flow<List<Int>>  = cacheModel.observeEmployeeIds()
 
     override fun invalidateDbCache() {
         tryToSend(InvalidateDbCache)

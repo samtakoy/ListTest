@@ -4,6 +4,7 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import ru.samtakoy.listtest.presentation.details.DetailsFragment
+import ru.samtakoy.listtest.presentation.details_pager.DetailsPagerFragment
 import ru.samtakoy.listtest.presentation.list.ListFragment
 import ru.samtakoy.listtest.presentation.settings.SettingsFragment
 import javax.inject.Singleton
@@ -21,6 +22,7 @@ interface AppComponent {
     fun inject(f: ListFragment)
     fun inject(f: SettingsFragment)
     fun inject(f: DetailsFragment)
+    fun inject(f: DetailsPagerFragment)
 
     @Component.Builder
     interface Builder{

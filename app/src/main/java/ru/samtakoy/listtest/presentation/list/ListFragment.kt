@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
+import androidx.core.app.SharedElementCallback
+import androidx.core.view.ViewCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -23,6 +26,7 @@ import ru.samtakoy.listtest.presentation.list.inner.EmployeeListAdapter
 import ru.samtakoy.listtest.presentation.list.inner.EmployeeViewHolder
 import ru.samtakoy.listtest.presentation.list.inner.InfiniteScrollListener
 import ru.samtakoy.listtest.presentation.list.inner.SwipeItemHelper
+import ru.samtakoy.listtest.presentation.shared.SharedEmployeeViewModel
 import ru.samtakoy.listtest.presentation.transitionPair
 import ru.samtakoy.listtest.presentation.waitForTransition
 import javax.inject.Inject
@@ -41,6 +45,10 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
     private lateinit var recyclerViewAdapter: EmployeeListAdapter
     private lateinit var recyclerLayoutManager: LinearLayoutManager
     private lateinit var swipeItemHelper: SwipeItemHelper
+
+    private val currentEmployeeSharedModel: SharedEmployeeViewModel by lazy {
+        ViewModelProvider(requireActivity()).get(SharedEmployeeViewModel::class.java)
+    }
 
     private val recyclerViewPreDrawListener: ViewTreeObserver.OnPreDrawListener = ViewTreeObserver.OnPreDrawListener {
         tryScrollOneItemDown()
@@ -97,9 +105,16 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
             swipeItemHelper = SwipeItemHelper(requireContext(), this@ListFragment)
 
             // for shared element back transition
-            postponeEnterTransition()
-            waitForTransition(this)
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                prepareSharedElementTransition(this)
+            }
         }
+    }
+
+    private fun prepareSharedElementTransition(recyclerView: RecyclerView) {
+        prepareTransitions()
+        postponeEnterTransition()
+        waitForTransition(recyclerView)
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder) {
@@ -131,13 +146,13 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
 
     override fun setData(data: List<Employee>) {
 
-        val isScrollNeeded = recyclerViewAdapter.itemCount > 0
+        val isScrollNeededToNewData = recyclerViewAdapter.itemCount > 0
                 && recyclerViewAdapter.itemCount < data.size
 
         recyclerViewAdapter.submitList(data)
 
-        if(isScrollNeeded){
-            recyclerView.getViewTreeObserver().addOnPreDrawListener (recyclerViewPreDrawListener)
+        if(isScrollNeededToNewData){
+            recyclerView.viewTreeObserver.addOnPreDrawListener (recyclerViewPreDrawListener)
         }
     }
 
@@ -172,7 +187,7 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
                 return super.calculateSpeedPerPixel(displayMetrics)*10
             }
         }
-        smoothScroller.setTargetPosition(targetPos)
+        smoothScroller.targetPosition = targetPos
         return smoothScroller
     }
 
@@ -182,30 +197,19 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        /*
-        when(item.itemId){
-            R.id.menu_item_settings -> presenter.onUiSettingsClick()
-        }*/
-
         return item.onNavDestinationSelected(findNavController()) || super.onOptionsItemSelected(item)
     }
-
-    /*
-    override fun navigateToSettings() {
-        findNavController().navigate(
-            ListFragmentDirections.toSettings()
-        )
-    }*/
 
     override fun navigateToEmployeeDetails(employeeId: Int) {
         var holder: EmployeeViewHolder? = null
 
+        currentEmployeeSharedModel.currentEmployeeId = employeeId
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-            holder = getRecyclerItemViewByEmployeeId(employeeId) as EmployeeViewHolder
+            holder = getExistsRecyclerItemViewByEmployeeId(employeeId) as EmployeeViewHolder
 
             if(holder != null){
-                //sharedElementView.is
+
                 if(clickedView == holder.itemView){
                     Log.d("tag", "1")
                 }else{
@@ -215,18 +219,18 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
                     holder.avatarTrView.transitionPair(),
                     holder.firstNameTrView.transitionPair(),
                     holder.lastNameTrView.transitionPair(),
-                    holder.itemView.transitionPair()
+                    //holder.itemView.transitionPair()
                 )
-                findNavController().navigate(ListFragmentDirections.toDetails(employeeId), extras)
+                findNavController().navigate(ListFragmentDirections.toDetailsPager(employeeId), extras)
                 return
             }
         }
 
         // usual navigation
-        findNavController().navigate(ListFragmentDirections.toDetails(employeeId))
+        findNavController().navigate(ListFragmentDirections.toDetailsPager(employeeId))
     }
 
-    private fun getRecyclerItemViewByEmployeeId(employeeId: Int): EmployeeViewHolder?{
+    private fun getExistsRecyclerItemViewByEmployeeId(employeeId: Int): EmployeeViewHolder?{
 
         for(i in 0 until recyclerLayoutManager.childCount){
             var view = recyclerLayoutManager.getChildAt(i)
@@ -238,6 +242,48 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
             }
         }
         return null
+    }
+
+    private fun prepareTransitions() {
+        setExitSharedElementCallback(object : SharedElementCallback() {
+            override fun onMapSharedElements(
+                names: MutableList<String>,
+                sharedElements: MutableMap<String, View>
+            ) {
+                val sharedModel = ViewModelProvider(requireActivity()).get(SharedEmployeeViewModel::class.java)
+                if(sharedModel?.readyEmployeeId != null){
+                    mapSharedElements(names, sharedElements, sharedModel?.readyEmployeeId!!)
+                }
+            }
+        })
+    }
+
+    private fun mapSharedElements(names: MutableList<String>,
+                                  sharedElements: MutableMap<String, View>,
+                                  employeeId: Int
+    ){
+        names.clear()
+        sharedElements.clear()
+
+        val holder = getExistsRecyclerItemViewByEmployeeId(employeeId)
+        if(holder != null) {
+            mapOneSharedElements(names, sharedElements, holder.avatarTrView)
+            mapOneSharedElements(names, sharedElements, holder.firstNameTrView)
+            mapOneSharedElements(names, sharedElements, holder.lastNameTrView)
+            //mapOneSharedElements(names, sharedElements, holder.itemView)
+        }
+    }
+
+    private fun mapOneSharedElements(
+        names: MutableList<String>,
+        sharedElements: MutableMap<String, View>,
+        view: View
+    ) {
+        val transitionName = ViewCompat.getTransitionName(view)
+        if(transitionName != null) {
+            names.add(transitionName)
+            sharedElements[transitionName] = view
+        }
     }
 
 }

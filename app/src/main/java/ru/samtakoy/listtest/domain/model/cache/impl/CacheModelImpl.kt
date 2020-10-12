@@ -1,11 +1,10 @@
 package ru.samtakoy.listtest.domain.model.cache.impl
 
 import android.util.Log
-import ru.samtakoy.listtest.domain.reps.EmployeeCacheRepository
-import ru.samtakoy.listtest.domain.reps.RemoteEmployeeRepository
-
 import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.domain.Locals
 import ru.samtakoy.listtest.domain.TimestampHolder
@@ -15,6 +14,8 @@ import ru.samtakoy.listtest.domain.model.cache.CacheSettings
 import ru.samtakoy.listtest.domain.model.cache.CacheStatus
 import ru.samtakoy.listtest.domain.model.cache.CacheValidator
 import ru.samtakoy.listtest.domain.model.dto.EmployeePack
+import ru.samtakoy.listtest.domain.reps.EmployeeCacheRepository
+import ru.samtakoy.listtest.domain.reps.RemoteEmployeeRepository
 
 private const val TAG = "CacheModelImpl"
 
@@ -58,15 +59,10 @@ class CacheModelImpl constructor(
         }
     }
 
-    fun observeNetworkBusyStatus(): StateFlow<Boolean>{
-        return networkBusyStatus
-    }
-
-    fun observeErrors(): BroadcastChannel<CacheError> {
-        return errors
-    }
-
+    fun observeNetworkBusyStatus(): StateFlow<Boolean> = networkBusyStatus
+    fun observeErrors(): BroadcastChannel<CacheError> = errors
     fun observeEmployees(): Flow<List<Employee>> = cacheRepository.getEmployees()
+    fun observeEmployeeIds(): Flow<List<Int>> = cacheRepository.getEmployeeIds()
 
     private fun changeCacheStatus(newStatus: CacheStatus){
 

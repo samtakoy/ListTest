@@ -13,6 +13,7 @@ interface CacheModel {
     fun observeNetworkBusyStatus(): StateFlow<Boolean>
     fun observeErrors(): Flow<CacheError>
     fun observeEmployees(): Flow<List<Employee>>
+    fun observeEmployeeIds(): Flow<List<Int>>
 
     fun invalidateDbCache()
     fun clearDbCache(): Deferred<RequestResult>

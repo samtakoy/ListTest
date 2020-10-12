@@ -11,6 +11,9 @@ interface EmployeeDao {
     @Query("SELECT * FROM employee")
     fun getAllEmployees(): Flow<List<EmployeeEntity>>
 
+    @Query("SELECT id FROM employee ")
+    fun getAllEmployeeIds(): Flow<List<Int>>
+
     @Query("SELECT * FROM employee WHERE id = :employeeId")
     fun getEmployee(employeeId: Int): Flow<List<EmployeeEntity>>
 

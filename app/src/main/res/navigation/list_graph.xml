@@ -20,6 +20,15 @@
             app:popExitAnim="@anim/fragment_fade_exit"
             />
         <action
+            android:id="@+id/to_detailsPager"
+            app:destination="@id/detailsPagerFragment"
+
+            app:enterAnim="@anim/fragment_fade_enter"
+            app:exitAnim="@anim/fragment_fade_exit"
+            app:popEnterAnim="@anim/fragment_fade_enter"
+            app:popExitAnim="@anim/fragment_fade_exit"
+            />
+        <action
             android:id="@+id/to_settings"
             app:destination="@id/settingsFragment"
 
@@ -33,6 +42,15 @@
     <fragment
         android:id="@+id/detailsFragment"
         android:name="ru.samtakoy.listtest.presentation.details.DetailsFragment"
+        android:label=""
+        >
+        <argument
+            android:name="employeeId"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsPagerFragment"
+        android:name="ru.samtakoy.listtest.presentation.details_pager.DetailsPagerFragment"
         android:label=""
         >
         <argument
