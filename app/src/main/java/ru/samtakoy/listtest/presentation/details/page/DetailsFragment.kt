@@ -2,6 +2,7 @@ package ru.samtakoy.listtest.presentation.details.page
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
+import ru.samtakoy.listtest.domain.TEST_TAG
 import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.presentation.getAvatarTransitionName
 import ru.samtakoy.listtest.presentation.getFirstNameTransitionName
@@ -63,12 +65,7 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view: View = inflater.inflate(R.layout.fragment_details, container, false)
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        return inflater.inflate(R.layout.fragment_details, container, false)
     }
 
     override fun onDestroyView() {
@@ -77,8 +74,12 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
     }
 
     private fun cancelAnimations() {
-        Glide.with(requireContext())
-            .clear(avatar)
+        if(activity != null && !requireActivity().isDestroyed) {
+            // ?
+            //Glide.with(requireContext()).pauseRequests()
+            Glide.with(requireContext())
+                .clear(avatar)
+        }
     }
 
     override fun showEmployee(employee: Employee) {
@@ -92,7 +93,6 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
         ViewCompat.setTransitionName(avatar, employee.getAvatarTransitionName())
         ViewCompat.setTransitionName(firstName, employee.getFirstNameTransitionName())
         ViewCompat.setTransitionName(lastName, employee.getLastNameTransitionName())
-        //ViewCompat.setTransitionName(container, employee.getContainerTransitionName())
         startEnterTransitionAfterLoadingImage(employee.avatar, avatar)
     }
 
@@ -103,10 +103,11 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
         names.clear()
         sharedElements.clear()
 
+        Log.w(TEST_TAG, "..Details: -- in --")
+
         mapOneSharedElements(names, sharedElements, avatar)
         mapOneSharedElements(names, sharedElements, firstName)
         mapOneSharedElements(names, sharedElements, lastName)
-        //mapOneSharedElements(names, sharedElements, container)
     }
 
     private fun mapOneSharedElements(
@@ -116,6 +117,10 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
     ) {
         val transitionName = ViewCompat.getTransitionName(view)
         if(transitionName != null) {
+
+
+            Log.w(TEST_TAG, "..${transitionName}")
+
             names.add(transitionName)
             sharedElements[transitionName] = view
         }
@@ -144,7 +149,6 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    //startPostponedEnterTransition()
                     onImageReady()
                     return false
                 }
@@ -156,7 +160,6 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    //startPostponedEnterTransition()
                     onImageReady()
                     return false
                 }

@@ -21,6 +21,7 @@ import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
+import ru.samtakoy.listtest.domain.TEST_TAG
 import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.presentation.list.inner.EmployeeListAdapter
 import ru.samtakoy.listtest.presentation.list.inner.EmployeeViewHolder
@@ -108,6 +109,7 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 prepareSharedElementTransition(this)
             }
+
         }
     }
 
@@ -131,11 +133,8 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
         }
     }
 
-    private var clickedView: View? = null
-
     private fun createAdapter(): EmployeeListAdapter {
         return EmployeeListAdapter{ view, employee ->
-            clickedView = view
             presenter.onUiEmployeeClick(employee.id)
         }
     }
@@ -210,15 +209,10 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
 
             if(holder != null){
 
-                if(clickedView == holder.itemView){
-                    Log.d("tag", "1")
-                }else{
-                    Log.d("tag", "2")
-                }
                 val extras = FragmentNavigatorExtras(
                     holder.avatarTrView.transitionPair(),
                     holder.firstNameTrView.transitionPair(),
-                    holder.lastNameTrView.transitionPair(),
+                    holder.lastNameTrView.transitionPair()
                     //holder.itemView.transitionPair()
                 )
                 findNavController().navigate(ListFragmentDirections.toDetailsPager(employeeId), extras)
@@ -251,8 +245,8 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
                 sharedElements: MutableMap<String, View>
             ) {
                 val sharedModel = ViewModelProvider(requireActivity()).get(SharedEmployeeViewModel::class.java)
-                if(sharedModel?.readyEmployeeId != null){
-                    mapSharedElements(names, sharedElements, sharedModel?.readyEmployeeId!!)
+                if(sharedModel.readyEmployeeId != null){
+                    mapSharedElements(names, sharedElements, sharedModel.readyEmployeeId!!)
                 }
             }
         })
@@ -265,8 +259,13 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
         names.clear()
         sharedElements.clear()
 
+        Log.w(TEST_TAG, "..List: -- mapSharedElements --")
+
         val holder = getExistsRecyclerItemViewByEmployeeId(employeeId)
-        if(holder != null) {
+        if(holder?.itemView != null) {
+
+            Log.w(TEST_TAG, "..List: -- in --")
+
             mapOneSharedElements(names, sharedElements, holder.avatarTrView)
             mapOneSharedElements(names, sharedElements, holder.firstNameTrView)
             mapOneSharedElements(names, sharedElements, holder.lastNameTrView)
@@ -281,6 +280,9 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
     ) {
         val transitionName = ViewCompat.getTransitionName(view)
         if(transitionName != null) {
+
+            Log.w(TEST_TAG, "..${transitionName}")
+
             names.add(transitionName)
             sharedElements[transitionName] = view
         }

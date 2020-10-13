@@ -2,6 +2,7 @@ package ru.samtakoy.listtest.presentation.details.pager
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
+import ru.samtakoy.listtest.domain.TEST_TAG
 import ru.samtakoy.listtest.presentation.details.pager.inner.PagerAdapter
 import ru.samtakoy.listtest.presentation.shared.SharedEmployeeViewModel
 import javax.inject.Inject
@@ -109,6 +111,8 @@ class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView {
                 names: MutableList<String>,
                 sharedElements: MutableMap<String, View>
             ) {
+                Log.w(TEST_TAG, "..Details: -- mapSharedElements --")
+
                 val position = viewPager.currentItem
                 val currentPage = adapter.getExistsFragment(position)
                 currentPage?.onMapSharedElements(names, sharedElements)
