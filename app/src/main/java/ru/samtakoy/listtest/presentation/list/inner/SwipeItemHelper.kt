@@ -10,6 +10,7 @@ import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.recyclerview.widget.RecyclerView
+import java.util.concurrent.ConcurrentHashMap
 
 class SwipeItemHelper(
     context: Context,
@@ -21,7 +22,7 @@ class SwipeItemHelper(
         fun onSwiped(viewHolder: RecyclerView.ViewHolder)
     }
 
-    private val animations = hashMapOf<RecyclerView.ViewHolder, DynamicAnimation<*>>()
+    private val animations = ConcurrentHashMap<RecyclerView.ViewHolder, DynamicAnimation<*>>()
     private val touchSlop:Int = ViewConfiguration.get(context).scaledTouchSlop * 3
     private var initialTouchX: Float = 0f
     private var recyclerView: RecyclerView? = null
