@@ -65,7 +65,7 @@ class CacheModelMediatorImpl @Inject constructor(
                             command.deferred.completeExceptionally(ex)
                         }
                     }
-                } // when
+                }//.exhaustive
             } finally {
 
                 command.releasePermission()

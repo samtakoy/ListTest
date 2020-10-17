@@ -2,7 +2,6 @@ package ru.samtakoy.listtest.presentation.details.page
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +21,6 @@ import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
-import ru.samtakoy.listtest.domain.TEST_TAG
 import ru.samtakoy.listtest.domain.model.Employee
 import ru.samtakoy.listtest.presentation.getAvatarTransitionName
 import ru.samtakoy.listtest.presentation.getFirstNameTransitionName
@@ -100,11 +98,6 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
         names: MutableList<String>,
         sharedElements: MutableMap<String, View>
     ) {
-        names.clear()
-        sharedElements.clear()
-
-        Log.w(TEST_TAG, "..Details: -- in --")
-
         mapOneSharedElements(names, sharedElements, avatar)
         mapOneSharedElements(names, sharedElements, firstName)
         mapOneSharedElements(names, sharedElements, lastName)
@@ -118,11 +111,14 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
         val transitionName = ViewCompat.getTransitionName(view)
         if(transitionName != null) {
 
+            val namePrefix: String = transitionName.substringBefore(":")
 
-            Log.w(TEST_TAG, "..${transitionName}")
-
-            names.add(transitionName)
-            sharedElements[transitionName] = view
+            for(name in names){
+                if(name.startsWith(namePrefix)){
+                    sharedElements[name] = view
+                    return
+                }
+            }
         }
     }
 
