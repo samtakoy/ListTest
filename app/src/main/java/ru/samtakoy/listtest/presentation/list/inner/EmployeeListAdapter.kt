@@ -64,6 +64,11 @@ class EmployeeListAdapter(
     private val itemClickListener:((view: View, empl: Employee) -> Unit)
 ) : ListAdapter<Employee, EmployeeViewHolder>(ITEM_COMPARATOR) {
 
+    var employeeList: List<Employee> = listOf()
+        set(value){
+            field = value
+            submitList(value)
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EmployeeViewHolder {
         val inflater = LayoutInflater.from(parent.context)

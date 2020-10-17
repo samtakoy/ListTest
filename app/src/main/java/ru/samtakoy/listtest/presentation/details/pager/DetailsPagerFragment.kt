@@ -2,7 +2,6 @@ package ru.samtakoy.listtest.presentation.details.pager
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,12 +9,12 @@ import android.widget.Toast
 import androidx.core.app.SharedElementCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.transition.TransitionInflater
+import androidx.viewpager2.widget.ViewPager2
 import kotlinx.android.synthetic.main.fragment_details_pager.*
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
-import ru.samtakoy.listtest.domain.TEST_TAG
 import ru.samtakoy.listtest.presentation.details.pager.inner.PagerAdapter
 import ru.samtakoy.listtest.presentation.shared.SharedEmployeeViewModel
 import javax.inject.Inject
@@ -50,15 +49,26 @@ class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view: View = inflater.inflate(R.layout.fragment_details_pager, container, false)
-        return view
+        return inflater.inflate(R.layout.fragment_details_pager, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        listenPagerChanges()
         setupAdapter()
         proceedSharedAnimsOnEnter()
+    }
+
+    private fun listenPagerChanges() {
+        viewPager.registerOnPageChangeCallback(
+            object: ViewPager2.OnPageChangeCallback(){
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    onEmployeeIdxSelect(position)
+                }
+            }
+        )
     }
 
     private fun proceedSharedAnimsOnEnter() {
@@ -97,8 +107,12 @@ class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView {
     }
 
     override fun setCurrentEmployeePosition(positionIdx: Int) {
-        currentEmployeeSharedModel.currentEmployeeId = adapter.idData[positionIdx]
+        onEmployeeIdxSelect(positionIdx)
         viewPager.setCurrentItem(positionIdx, false)
+    }
+
+    private fun onEmployeeIdxSelect(positionIdx: Int) {
+        currentEmployeeSharedModel.currentEmployeeId = adapter.idData[positionIdx]
     }
 
     override fun showError(errorId: Int) {
@@ -111,8 +125,6 @@ class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView {
                 names: MutableList<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                Log.w(TEST_TAG, "..Details: -- mapSharedElements --")
-
                 val position = viewPager.currentItem
                 val currentPage = adapter.getExistsFragment(position)
                 currentPage?.onMapSharedElements(names, sharedElements)
