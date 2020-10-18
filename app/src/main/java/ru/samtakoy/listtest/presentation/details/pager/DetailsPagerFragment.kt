@@ -6,9 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.SharedElementCallback
 import androidx.lifecycle.ViewModelProvider
-import androidx.transition.TransitionInflater
+import androidx.transition.ChangeBounds
+import androidx.transition.ChangeClipBounds
+import androidx.transition.ChangeTransform
+import androidx.transition.TransitionSet
 import androidx.viewpager2.widget.ViewPager2
 import kotlinx.android.synthetic.main.fragment_details_pager.*
 import moxy.MvpAppCompatFragment
@@ -17,6 +21,7 @@ import ru.samtakoy.listtest.R
 import ru.samtakoy.listtest.app.Di
 import ru.samtakoy.listtest.presentation.details.pager.inner.PagerAdapter
 import ru.samtakoy.listtest.presentation.shared.SharedEmployeeViewModel
+import ru.samtakoy.listtest.utils.extensions.doOnEndOnce
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -55,6 +60,8 @@ class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        currentEmployeeSharedModel.bigPictureLoadingAllowed.value = false
+
         listenPagerChanges()
         setupAdapter()
         proceedSharedAnimsOnEnter()
@@ -77,6 +84,8 @@ class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView {
             postponeEnterTransition()
             observeImageReady()
             prepareTransitions()
+        } else {
+            currentEmployeeSharedModel.bigPictureLoadingAllowed.value = true
         }
     }
 
@@ -91,8 +100,17 @@ class DetailsPagerFragment : MvpAppCompatFragment(), DetailsPagerView {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun setSharedElementTransitionOnEnter(){
-        sharedElementEnterTransition = TransitionInflater.from(requireContext()).inflateTransition(R.transition.shared_element_transition)
+
+        sharedElementEnterTransition = TransitionSet()
+            .setOrdering(TransitionSet.ORDERING_TOGETHER)
+            .addTransition(ChangeClipBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeBounds())
+            .doOnEndOnce{
+                currentEmployeeSharedModel.bigPictureLoadingAllowed.value = true
+            }
     }
 
     private fun setupAdapter() {

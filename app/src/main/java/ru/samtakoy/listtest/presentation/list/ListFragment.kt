@@ -84,9 +84,17 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
         recyclerViewAdapter = createAdapter()
         setupRecyclerView(view, recyclerViewAdapter)
 
-        if(currentEmployeeSharedModel.isCurrentEmployeeSetted()){
-            postponeEnterTransition()
-            view.recyclerView.viewTreeObserver.addOnPreDrawListener (recyclerViewPreDrawRestorationListener)
+        // for shared element back transition
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            prepareTransitions()
+            if(currentEmployeeSharedModel.isCurrentEmployeeSetted()){
+                postponeEnterTransition()
+                view.recyclerView.viewTreeObserver.addOnPreDrawListener (recyclerViewPreDrawRestorationListener)
+            }
+        }else{
+            if(currentEmployeeSharedModel.isCurrentEmployeeSetted()){
+                view.recyclerView.viewTreeObserver.addOnPreDrawListener (recyclerViewPreDrawRestorationListener)
+            }
         }
 
         return view
@@ -119,11 +127,6 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
             addOnScrollListener(createInfiniteScrollListener(layoutManager as LinearLayoutManager))
 
             swipeItemHelper = SwipeItemHelper(requireContext(), this@ListFragment)
-
-            // for shared element back transition
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                prepareTransitions()
-            }
 
         }
     }

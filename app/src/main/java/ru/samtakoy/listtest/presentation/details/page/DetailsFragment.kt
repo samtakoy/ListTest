@@ -51,6 +51,10 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
         factoryProvider.get().create(employeeId)
     }
 
+    private val currentEmployeeSharedModel: SharedEmployeeViewModel by lazy {
+        ViewModelProvider(requireActivity()).get(SharedEmployeeViewModel::class.java)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         Di.appComponent.inject(this)
@@ -132,6 +136,35 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
     }
 
     private fun startEnterTransitionAfterLoadingImage(imageUrl: String, imageView: ImageView){
+
+        val loadingAllowed = currentEmployeeSharedModel.bigPictureLoadingAllowed.value!!
+
+        if(!loadingAllowed){
+            loadImageOnTransitionFinish(imageUrl, imageView)
+        }
+
+        loadImage(imageUrl, imageView, !loadingAllowed){
+            currentEmployeeSharedModel.onImageReady(requireArguments().getInt(ARG_EMPLOYEE_ID))
+        }
+    }
+
+    private fun loadImageOnTransitionFinish(imageUrl: String, imageView: ImageView) {
+        currentEmployeeSharedModel.bigPictureLoadingAllowed.observe(
+            viewLifecycleOwner, {
+                if (it) {
+                    currentEmployeeSharedModel.bigPictureLoadingAllowed.removeObservers(viewLifecycleOwner)
+                    loadImage(imageUrl, imageView, false){}
+                }
+            }
+        )
+    }
+
+    private fun loadImage(
+        imageUrl: String,
+        imageView: ImageView,
+        onlyRetrieveFromCache: Boolean,
+        onFinish: ()->Unit
+    ): Unit {
         Glide.with(requireContext())
             .load(imageUrl)
             .centerCrop()
@@ -145,7 +178,7 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    onImageReady()
+                    onFinish()
                     return false
                 }
 
@@ -156,17 +189,14 @@ class DetailsFragment : MvpAppCompatFragment(), DetailsView {
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    onImageReady()
+                    onFinish()
                     return false
                 }
-            }
-            )
+            })
+            .onlyRetrieveFromCache(onlyRetrieveFromCache)
             .into(imageView)
     }
 
-    private fun onImageReady(){
-        val model = ViewModelProvider(requireActivity()).get(SharedEmployeeViewModel::class.java)
-        model.onImageReady(requireArguments().getInt(ARG_EMPLOYEE_ID))
-    }
+
 
 }
