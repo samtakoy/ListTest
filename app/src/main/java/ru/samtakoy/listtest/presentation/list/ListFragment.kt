@@ -253,9 +253,9 @@ class ListFragment : MvpAppCompatFragment(), ListView, SwipeItemHelper.SwipeList
     private fun getExistsRecyclerItemViewByEmployeeId(employeeId: Int): EmployeeViewHolder?{
 
         for(i in 0 until recyclerLayoutManager.childCount){
-            var view = recyclerLayoutManager.getChildAt(i)
+            val view = recyclerLayoutManager.getChildAt(i)
             if(view != null) {
-                var viewHolder = recyclerView.getChildViewHolder(view) as EmployeeViewHolder
+                val viewHolder = recyclerView.getChildViewHolder(view) as EmployeeViewHolder
                 if(viewHolder.employeeId == employeeId){
                     return viewHolder
                 }
